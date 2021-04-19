@@ -2,23 +2,32 @@ from random import randrange, choice
 import RPi.GPIO as gpio
 import paho.mqtt.client as mqtt #import the client1
 import json
+import logging
 
-
-
-def Check_UI(wires, correct):
+def Check_UI(wires, correct, DEBUG):
     global NOTCLEARED, WINSTATUS
     WINSTATUS = 0
     NOTCLEARED = True
-    DEBUG = 1
+    
+    if DEBUG:
+        logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
+    if not DEBUG:
+        logging.basicConfig(filename='logfile.log', level=logging.WARNING, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
+
+    
+    logging.info("Var's set: WINSTATUS, {}; NOTCLEARED, {}; DEBUG, {}".format(WINSTATUS, NOTCLEARED, DEBUG))
 
     broker_address="192.168.178.15" 
     client = mqtt.Client("PWire") #create new instance
+    logging.info("created new instance PWire")
     client.connect(broker_address) #connect to broker
+    logging.info("Connected to broker")
 
     dictionary = ["Module1", "R"]
     temp1 = json.dumps(dictionary)
+    logging.info("Created a JSON dump of the register message")
     client.publish("main_channel",temp1)#publish
-
+    logging.info("Published message R to the main channel")
     global DRAAD1, DRAAD2, DRAAD3, DRAAD4, DRAAD5, DRAAD6
     global Wire_Cut_1, Wire_Cut_2, Wire_Cut_3, Wire_Cut_4, Wire_Cut_5, Wire_Cut_6
     global wire_behandeld_1, wire_behandeld_2, wire_behandeld_3, wire_behandeld_4, wire_behandeld_5, wire_behandeld_6
@@ -28,7 +37,7 @@ def Check_UI(wires, correct):
     DRAAD3 = 15
     DRAAD4 = 8
     DRAAD5 = 10
-    DRAAD6 = 12
+    DRAAD6 = 11
 
     Wire_Cut_1 = 0
     Wire_Cut_2 = 0
@@ -43,6 +52,11 @@ def Check_UI(wires, correct):
     wire_behandeld_4 = 0
     wire_behandeld_5 = 0
     wire_behandeld_6 = 0
+
+    if not (DRAAD1 + DRAAD2 + DRAAD3 + DRAAD4 + DRAAD5 + DRAAD6) == 64 or not (Wire_Cut_1 + Wire_Cut_2 + Wire_Cut_3 + Wire_Cut_4 + Wire_Cut_5 + Wire_Cut_6 + wire_behandeld_1 + wire_behandeld_2 + wire_behandeld_3 + wire_behandeld_4 + wire_behandeld_5 + wire_behandeld_6) == 0:
+        logging.error("Base variables have not been added correctly. This may couse glitches further in the program")
+    else:
+        logging.info("Wire variables created correctly")
 
     gpio.setwarnings(DEBUG)
     gpio.setmode(gpio.BOARD)

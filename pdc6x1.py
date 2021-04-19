@@ -49,7 +49,7 @@
 import spidev
 import segment_mapper
 
-DEBUG = 1
+DEBUG = 0
 
 
 class PDC6x1:
