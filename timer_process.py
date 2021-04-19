@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt #import the client1
 import json
 #-----------------------------------------------
 def clock_process(time_total, blinkfrom, DEBUG):
-    
+    global defused
     if DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
     if not DEBUG:
