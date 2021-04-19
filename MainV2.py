@@ -2,6 +2,9 @@
 from random import randrange
 import sys
 import logging
+
+#------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     info_complete_debug = False
     debug_asking = input(str("Debug on? Y/N")).upper()
@@ -18,6 +21,9 @@ if __name__ == "__main__":
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
     if not DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.WARNING, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
+    logging.critical("\n\n\n\n")
+
+#------------------------------------------------------------------------------
 
 from time import sleep
 from Module_setup import *
@@ -25,6 +31,7 @@ from main_process import *
 from wire_process import *
 from timer_process import *
 import multiprocessing
+
 #------------------------------------------------------------------------------
 #   Setting up the logging settings
 #       DEBUG: detailed information, typically of intrest only when diagnosing problems.
@@ -33,23 +40,13 @@ import multiprocessing
 #       ERROR: Due to a more serious problem, the software has not been able to preform some function
 #       CRITICAL: A serious error, indicating that the program itself may be unstable to continue running
 #------------------------------------------------------------------------------
-#All global variables and where they're used
 
-
-#------------------------------------------------------------------------------
-#DEFINING: Setting up all the modules
-
-#------------------------------------------------------------------------------
-#DEFINING: Running the bomb with multiprocessing or threading
-
-#------------------------------------------------------------------------------
-#DEFINING: Main
 def main(DEBUG):
     module_info = setup_main() # This function will ask en sort all info needed to set up the bomb. See Module_setup.py for more info
     #Setup threads
-    logging.info("In main: {}".format(module_info))
-    x = input("Press enter to start the processes")
-    main_multiprocess = multiprocessing.Process(target=main_process, args=(module_info[1], DEBUG))
+    logging.info("In main: \n\t{}".format(module_info))
+    input("Press enter to start the processes")
+    main_multiprocess = multiprocessing.Process(target=main_process, args=(module_info[1],))
     wires_multiprocess = multiprocessing.Process(target=Check_UI, args=(module_info[8], module_info[9], DEBUG))
     timer_multiprocess = multiprocessing.Process(target=clock_process, args=(module_info[2], module_info[3], DEBUG))
     main_multiprocess.start()
@@ -57,13 +54,16 @@ def main(DEBUG):
     wires_multiprocess.start()
     sleep(1)
     timer_multiprocess.start()
+    logging.info("Started the 'main', 'wires' and 'timer' process")
     
     main_multiprocess.join()
     wires_multiprocess.join()
     timer_multiprocess.join()
     return
+
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
+
 if __name__ == '__main__':
     main(DEBUG)
 else:

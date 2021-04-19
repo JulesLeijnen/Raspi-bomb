@@ -1,7 +1,7 @@
 from random import randrange
 from time import sleep
 from sys import exit
-
+import logging
 #------------------------------------------------------------------------------
 #All global variables and where they're used
 
@@ -12,6 +12,8 @@ info_complete_timer = False
 info_complete_debug = False
 
 DEBUG = False
+
+logging.info("Created global begin var's:\n\tinfo_complete_mode = {}\n\tinfo_complete_wires = {}\n\tinfo_complete_timer = {}\n\tinfo_complete_debug = {}\n\n\tDEBUG = {}".format(info_complete_mode, info_complete_wires, info_complete_timer, info_complete_debug, DEBUG))
 
     # setup_info_list = [mode, maximum mistakes, timer duration (seconds), timer blink from, Serialnumber, serial last is odd?, serialnumber has vowel, amountwires, wirelist, wires solution]
     # setup_info_list = ["D", 3, 300, 60, "XX1XX1", 0, 0, 4, ["Black", "Red", "White", "Red"], 2]
@@ -31,7 +33,7 @@ def Mode_selecter():
             info_complete_mode = True #A correct input was given, so the loop is broken free from to the next question
             if mode == "C":
                 faults = int(input("How many mistakes untill the bomb goes off. pick 1, 2 or 3"))
-            else:
+            if not mode == "C":
                 faults = 3
             if not 0 < faults < 4:
                 faults = 3

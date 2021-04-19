@@ -1,14 +1,20 @@
-#from pdc6x1 import PDC6x1
+x = "{}".format(False)
+print(x)
+print(type(x))
 
+
+
+
+#from pdc6x1 import PDC6x1
 # import time
 # print(time.time())
 # x = time.time() + 1
 # print(x)
-import logging
-def func1():
-    logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(funcName)s: \n\t%(message)s')
-    logging.debug("TEst1")
-func1()
+# import logging
+# def func1():
+#     logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(funcName)s: \n\t%(message)s')
+#     logging.debug("TEst1")
+# func1()
 # while True:
 #     x1 = time.time()
 #     x2 = time.time()

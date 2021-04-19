@@ -6,6 +6,7 @@ import logging
 import paho.mqtt.client as mqtt #import the client
 from time import sleep
 import json
+from sys import exit
 import RPi.GPIO as gpio
 ########################################
 
@@ -16,79 +17,54 @@ time_up = 0
 
 logging.info("Var's set: amount_mistakes, {}; active_Modules, {}; status, {}; time_up, {}".format(amount_mistakes, active_Modules, status, time_up))
 
+########################################
+
 def on_message(client, userdata, message):
     global amount_mistakes, active_Modules, status, time_up
-    logging.info("message received: " + str(message.payload.decode("utf-8")))
-    logging.info("message topic={}".format(message.topic))
-    logging.info("message qos={}".format(message.qos))
-    logging.info("message retain flag={}".format(message.retain))
-    logging.info("Message type = {}".format(type(message)))
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    logging.info(type(new_message))
-    logging.info(new_message)
-    logging.info(new_message[1])
+    logging.info("message received: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
     if new_message[1] == "R": #Register
         active_Modules += 1
         if status == "Sleeping":
             status = "Active"
+            logging.info("Changing status from 'Sleeping' to 'Active' And added 1 to active_Modules")
+        else:
+            logging.info("Added 1 to active_Modules, current total is {}".format(active_Modules))
     elif new_message[1] == "D": #Done
         active_Modules -= 1
+        logging.info("Removed 1 from active_Modules, current total is {}".format(active_Modules))
     elif new_message[1] == "T": #Time up
         time_up = 1
+        logging.info("Time is up, current state is '{}'".format(bool(time_up)))
     elif new_message[1] == "F": #Fault +1
         amount_mistakes += 1
-    
-    
+        logging.info("Added 1 to amount_mistakes, current total is {}".format(amount_mistakes))
+        
 ########################################
-def main_process(max_mistakes, DEBUG):
-    global amount_mistakes, active_Modules, status, time_up
-    if DEBUG:
-        logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
-    if not DEBUG:
-        logging.basicConfig(filename='logfile.log', level=logging.WARNING, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
 
-    broker_address="192.168.178.15"
-    logging.info("creating new instance")
+def main_process(max_mistakes):
+    global amount_mistakes, active_Modules, status, time_up
+
+    broker_adress="192.168.178.15"
     client = mqtt.Client("P1") #create new instance
-    logging.info("Created new instance of P1")
     client.on_message=on_message #attach function to callback
-    logging.info("connecting to broker")
-    client.connect(broker_address) #connect to broker
-    logging.info("Conencted to broker")
+    client.connect(broker_adress) #connect to broker
     client.loop_start() #start the loop
-    logging.info("Subscribing to topic,'main_channel'")
     client.subscribe("main_channel")
+    logging.info("Connected to broker on adress {} with name 'P1' and subscribed to 'main_channel'".format(broker_adress))
     while True:
         sleep(0.5)
-        logging.info("amount_mistakes={}".format(amount_mistakes))
-        logging.info("active_module={}".format(active_Modules))
-        logging.info("status={}".format(status))
-        logging.info("time_up={}".format(time_up))
         if status == "Active" and active_Modules < 1:
-            logging.info("Entering the cleared loop")
-            while True:
-                logging.info("CLEARED")
-                sleep(0.1)
-                logging.info("amount_mistakes={}".format(amount_mistakes))
-                logging.info("active_module={}".format(active_Modules))
-                logging.info("status={}".format(status))
-                logging.info("time_up={}".format(time_up))
-                sleep(0.5)
+            #SEND MESSAGE TO REST OF BOMB
+            logging.info("Entered the cleared loop")
+            logging.info("CLEARED\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}\n".format(amount_mistakes, active_Modules, status, time_up))
+            gpio.cleanup()
+            exit(0)
         pass
         if amount_mistakes > (max_mistakes - 1) or time_up == 1:
-            logging.info("Entering the Boom loop")
-            while True:
-                logging.info("BOOM!")
-                logging.info("BOOM!")
-                logging.info("BOOM!")
-                gpio.cleanup()
-                sleep(0.1)
-                logging.info("amount_mistakes={}".format(amount_mistakes))
-                logging.info("active_module={}".format(active_Modules))
-                logging.info("status={}".format(status))
-                logging.info("time_up={}".format(time_up))
-                logging.info("")
-                logging.info("")
-                logging.info("")
-                sleep(0.5)
+            #SEND MESSAGE TO REST OF BOMB
+            logging.info("Entered the Boom loop")
+            logging.info("BOOM!\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}".format(amount_mistakes, active_Modules, status, time_up))
+            gpio.cleanup()
+            exit(0)
     client.loop_stop() #stop the loop
