@@ -1,10 +1,8 @@
-x = "{}".format(False)
-print(x)
-print(type(x))
-
-
-
-
+# x = input(str("test")).upper()
+# print(x)
+# x = "{}".format(False)
+# print(x)
+# print(type(x))
 #from pdc6x1 import PDC6x1
 # import time
 # print(time.time())
