@@ -1,15 +1,18 @@
 #TODO:
 # Make a better wire_process.py
+# Implement a stop from message (MQTT) in wire_process.py
 # Implement in timer_process.py that the function will send the message to start blinken from anywhere without repeating and taking to long
 # Implement Logging in all processes (Main_process and MainV2 allready done.)
+# Clean up Imports
 import logging
-import paho.mqtt.client as mqtt #import the client
+import paho.mqtt.client as mqtt                             #import the client needed fot the MQTT broker
 from time import sleep
-import json
+import json                                                 #Imports JSON to convert arrays to strings and back
 from sys import exit
-import RPi.GPIO as gpio
+import RPi.GPIO as gpio                                     #Imports the GPIO lib to control the GPIO pins
 ########################################
 
+#These are all the variables that the main process needs to keep track of
 amount_mistakes = 0
 active_Modules = 0
 status = "Sleeping"

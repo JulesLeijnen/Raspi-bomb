@@ -56,7 +56,7 @@ def Check_UI(wires, correct, DEBUG):
     if not (DRAAD1 + DRAAD2 + DRAAD3 + DRAAD4 + DRAAD5 + DRAAD6) == 64 or not (Wire_Cut_1 + Wire_Cut_2 + Wire_Cut_3 + Wire_Cut_4 + Wire_Cut_5 + Wire_Cut_6 + wire_behandeld_1 + wire_behandeld_2 + wire_behandeld_3 + wire_behandeld_4 + wire_behandeld_5 + wire_behandeld_6) == 0:
         logging.error("Base variables have not been added correctly. This may couse glitches further in the program")
     else:
-        logging.info("Wire variables created correctly")
+        logging.info("Wire variables created correctly in the wire process")
 
     gpio.setwarnings(DEBUG)
     gpio.setmode(gpio.BOARD)
@@ -79,78 +79,37 @@ def Check_UI(wires, correct, DEBUG):
         gpio.setup(DRAAD6, gpio.IN, pull_up_down=gpio.PUD_DOWN)
         gpio.add_event_detect(DRAAD6, gpio.FALLING, callback=CallbackD6)
 
+    temp_list = ["Module1", "D"]
+    MessageD = json.dumps(temp_list)
+    temp_list2 = ["Module1", "D"]
+    MessageF = json.dumps(temp_list2)
+
     while NOTCLEARED:
         if Wire_Cut_1 == 1 and  correct != 1 and wire_behandeld_1 == 0:
             wire_behandeld_1 = 1
-            dictionary = ["Module1", "F"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)#publish
+            client.publish("main_channel",MessageF)                                 #Publish messageF to add 1 fault to the counter in main_process.py
         if Wire_Cut_2 == 1 and  correct != 2 and wire_behandeld_2 == 0:
             wire_behandeld_2 = 1
-            dictionary = ["Module1", "F"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)#publish
+            client.publish("main_channel",MessageF)                                 #Publish messageF to add 1 fault to the counter in main_process.py
         if Wire_Cut_3 == 1 and  correct != 3 and wire_behandeld_3 == 0:
             wire_behandeld_3 = 1
-            dictionary = ["Module1", "F"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)#publish
+            client.publish("main_channel",MessageF)                                 #Publish messageF to add 1 fault to the counter in main_process.py
         if Wire_Cut_4 == 1 and  correct != 4 and wire_behandeld_4 == 0:
             wire_behandeld_4 = 1
-            dictionary = ["Module1", "F"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)#publish
+            client.publish("main_channel",MessageF)                                 #Publish messageF to add 1 fault to the counter in main_process.py
         if Wire_Cut_5 == 1 and  correct != 5 and wire_behandeld_5 == 0:
             wire_behandeld_5 = 1
-            dictionary = ["Module1", "F"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)#publish
+            client.publish("main_channel",MessageF)                                 #Publish messageF to add 1 fault to the counter in main_process.py
         if Wire_Cut_6 == 1 and  correct != 6 and wire_behandeld_6 == 0:
             wire_behandeld_6 = 1
-            dictionary = ["Module1", "F"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)#publish
+            client.publish("main_channel",MessageF)                                 #Publish messageF to add 1 fault to the counter in main_process.py
 
-        if Wire_Cut_1 == 1 and correct == 1:
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
-            NOTCLEARED = False
-        if Wire_Cut_2 == 1 and correct == 2:
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
-            NOTCLEARED = False
-        if Wire_Cut_3 == 1 and correct == 3:
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
-            NOTCLEARED = False
-        if Wire_Cut_4 == 1 and correct == 4:
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
-            NOTCLEARED = False
-        if Wire_Cut_5 == 1 and correct == 5:
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
-            NOTCLEARED = False
-        if Wire_Cut_6 == 1 and correct == 6:
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
-            NOTCLEARED = False
-        
-
-        if WINSTATUS == 1:
-            print("Win!!")
-            temp_list = ["Module1", "D"]
-            temp1 = json.dumps(temp_list)
-            client.publish("main_channel",temp1)#publish
+        if (Wire_Cut_1 == 1 and correct == 1) or (Wire_Cut_2 == 1 and correct == 2) or (Wire_Cut_3 == 1 and correct == 3) or (Wire_Cut_4 == 1 and correct == 4) or (Wire_Cut_5 == 1 and correct == 5) or (Wire_Cut_6 == 1 and correct == 6):
+            client.publish("main_channel",MessageD)                                 #Publish messageD to remove 1 from the active_module counter in main_process.py
             NOTCLEARED = False
         pass
     gpio.cleanup()
+    return
 #-------------------------------------------------------------------------------
 def CallbackD1(channel):
     global Wire_Cut_1

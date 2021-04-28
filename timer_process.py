@@ -10,6 +10,7 @@ import json
 #-----------------------------------------------
 def clock_process(time_total, blinkfrom, DEBUG):
     global defused
+    defused = False
     if DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
     if not DEBUG:
@@ -22,6 +23,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
     broker_address="192.168.178.15"     #Sets the adress to whom will be send the message.
     client = mqtt.Client("PTimer")      #Create new instance of mqtt client.
     client.connect(broker_address)      #Connect to broker.
+    
 
     starttime = (time() + 2.5)         #Sets time from where all will start.
 
@@ -32,13 +34,13 @@ def clock_process(time_total, blinkfrom, DEBUG):
     dictionary3 = ["TimerModule", "B", time_total, blinkfrom, starttime]    #Preset message to tell the blinking process to start blinking. (Format: ["SendFrom", "Blinking command", "Total time", "Blink from", startfrom]).
     messageB = json.dumps(dictionary3)                                      # "
 
-    client.publish("blinking_channel", messageB)    #Tells the blinking process all the peramiters that are needed for it.
+    client.publish("main_channel", messageB)    #Tells the blinking process all the peramiters that are needed for it.
 #    client.publish("main_channel", messageR)        #Tells the main process that it exists (Send predefined message).
 
     until(starttime)                                #Waits for all the other time based programs to get ready to start and starts after a predeterment time 2.5 seconds.
     #Start Counting
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    while time_left > 59999:
+    while time_left > 59999 and not defused:
         time1 = time()                                      #Takes current time to determen later how lont to wait for.
         minu1, sec1 = divmod((time_left//100), 60)
         minu2, sec2 = str(minu1), str(sec1)
@@ -51,7 +53,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
         until(time1 + 1.00)                                 #Waits untill one second has passed from the beginning of this while-loop itiration.
         pass
 
-    while 60000 > time_left > 6000:                          #Is active when time left > 60 seconds.
+    while 60000 > time_left > 6000 and not defused:                          #Is active when time left > 60 seconds.
         time2 = time()                                      #Takes current time to determen later how lont to wait for.
         minu1, sec1 = divmod((time_left//100), 60)
         minu2, sec2 = str(minu1), str(sec1)
@@ -64,7 +66,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
         until(time2 + 1.00)                                 #Waits untill one second has passed from the beginning of this while-loop itiration.
         pass
     
-    while -1 < time_left < 6001:                             #Is activated when time is less than 60.01 seconds and is more them 0.009999999... seconds.
+    while -1 < time_left < 6001 and not defused:                             #Is activated when time is less than 60.01 seconds and is more them 0.009999999... seconds.
         time3 = time()                                      #Takes current time to determen later how lont to wait for.
         if time_left > 999:
             space = ""
@@ -81,9 +83,5 @@ def clock_process(time_total, blinkfrom, DEBUG):
     while time_left < 1:                            #Is activated when time is less than 0.01 seconds
         display.show("  0000", 1, 2)
         client.publish("main_channel", messageT)    #Tells the main process that Time's up (Send predefined message).
-        while True:
-            display.show("  0000", 1, 2)
-            sleep(0.25)
-            display.show("      ", 1, 2)
-            sleep(0.25)
-            pass
+        display.show("      ", 1, 2)
+        exit(0)

@@ -1,6 +1,51 @@
+#TODO:
+# Make a better wire_process.py
+# Implement a stop from message (MQTT) in wire_process.py
+# Implement in timer_process.py that the function will send the message to start blinken from anywhere without repeating and taking to long
+# Implement Logging in all processes (Main_process and MainV2 allready done.)
+# Clean up Imports
+
+
 #All imports:
 from random import randrange
 import sys
+import logging
+
+from pause import until
+import RPi.GPIO as gpio
+import paho.mqtt.client as mqtt #import the client1
+from time import sleep, time
+import json
+import logging
+
+import RPi.GPIO as gpio
+
+from random import randrange
+from time import sleep
+from sys import exit
+import logging
+
+from time import sleep          #Imports sleep from the time module
+from Module_setup import *      #Imports all info from the needed module
+from main_process import *      #Imports all info from the needed module
+from wire_process import *      #Imports all info from the needed module
+from timer_process import *     #Imports all info from the needed module
+import multiprocessing          #Imports multiprocessing to make the modules run in paralel
+
+import spidev
+import segment_mapper
+
+from pause import until
+import logging
+import pdc6x1
+from time import sleep, time
+import paho.mqtt.client as mqtt #import the client1
+import json
+
+from random import randrange, choice
+import RPi.GPIO as gpio
+import paho.mqtt.client as mqtt #import the client1
+import json
 import logging
 
 #------------------------------------------------------------------------------
@@ -25,12 +70,7 @@ if __name__ == "__main__":
 
 #------------------------------------------------------------------------------
 
-from time import sleep          #Imports sleep from the time module
-from Module_setup import *      #Imports all info from the needed module
-from main_process import *      #Imports all info from the needed module
-from wire_process import *      #Imports all info from the needed module
-from timer_process import *     #Imports all info from the needed module
-import multiprocessing          #Imports multiprocessing to make the modules run in paralel
+
 
 #------------------------------------------------------------------------------
 #   Setting up the logging settings
@@ -63,7 +103,7 @@ def main(DEBUG):
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
-if __name__ == '__main__':
-    main(DEBUG)
-else:
-    exit(1)
+if __name__ == '__main__':                                                                                              #Makes sure the bomb is booted from this file, and not as a module of another file
+    main(DEBUG)                                                                                                         #Executes the main function and tells it the DEBUG state
+else:                                                                                                                   #If executed as a variable, I don't want the bomb to run
+    exit(1)                                                                                                             #Exits the program and 
