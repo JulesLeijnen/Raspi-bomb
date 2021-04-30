@@ -83,5 +83,5 @@ def clock_process(time_total, blinkfrom, DEBUG):
     while time_left < 1:                            #Is activated when time is less than 0.01 seconds
         display.show("  0000", 1, 2)
         client.publish("main_channel", messageT)    #Tells the main process that Time's up (Send predefined message).
-        display.show("      ", 1, 2)
+        display.show("      ", -1, -1)
         exit(0)

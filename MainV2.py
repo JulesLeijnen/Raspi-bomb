@@ -29,6 +29,7 @@ from Module_setup import *      #Imports all info from the needed module
 from main_process import *      #Imports all info from the needed module
 from wire_process import *      #Imports all info from the needed module
 from timer_process import *     #Imports all info from the needed module
+from blinking_process import *
 import multiprocessing          #Imports multiprocessing to make the modules run in paralel
 
 import spidev
@@ -82,21 +83,25 @@ if __name__ == "__main__":
 
 def main(DEBUG):
     module_info = setup_main()                                                                                          # This function will ask en sort all info needed to set up the bomb. See Module_setup.py for more info
-    logging.info("In main: \n\t{}".format(module_info))                                                                 #Logs all the peramiters used by the different modules
+    print("In main: \n\t{}".format(module_info))                                                                 #Logs all the peramiters used by the different modules
     input("Press enter to start the processes")                                                                         #Waits for use input before continuing
     main_multiprocess = multiprocessing.Process(target=main_process, args=(module_info[1],))                            #Creates the main counting process and stores it in a variable
     wires_multiprocess = multiprocessing.Process(target=Check_UI, args=(module_info[8], module_info[9], DEBUG))         #Creates the wire module process and stores it in a variable
     timer_multiprocess = multiprocessing.Process(target=clock_process, args=(module_info[2], module_info[3], DEBUG))    #Creates the timer module process and stores it in a variable
+    blink_multiprocess = multiprocessing.Process(target=blinking_PRE_process, args=(DEBUG,))
     main_multiprocess.start()                                                                                           #Starts main process
     sleep(1)                                                                                                            #Is not needed, it is a bit of superstition
     wires_multiprocess.start()                                                                                          #Starts wire process
     sleep(1)                                                                                                            #Is not needed, it is a bit of superstition
     timer_multiprocess.start()                                                                                          #Starts Timer process
-    logging.info("Started the 'main', 'wires' and 'timer' process")                                                     #Logs that all processes have been started
+    sleep(1)
+    blink_multiprocess.start()
+    print("Started the 'main', 'wires' and 'timer' process")                                                     #Logs that all processes have been started
     
     main_multiprocess.join()                                                                                            #Not desided what to do with them.. Might not need them
     wires_multiprocess.join()                                                                                           #Not desided what to do with them.. Might not need them
     timer_multiprocess.join()                                                                                           #Not desided what to do with them.. Might not need them
+    blink_multiprocess.join()
     gpio.cleanup()
     exit(0)
     return

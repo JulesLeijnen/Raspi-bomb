@@ -6,7 +6,7 @@ import logging
 
 NOTCLEARED = True
 
-def on_message(client, userdata, message):
+def on_messageWires(client, userdata, message):
     global NOTCLEARED
     new_message = json.loads(str(message.payload.decode("utf-8")))
     logging.info("message received in wire_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
@@ -30,7 +30,7 @@ def Check_UI(wires, correct, DEBUG):
     logging.info("created new instance PWire")
     client.connect(broker_address) #connect to broker
     logging.info("Connected to broker")
-    client.on_message=on_message #attach function to callback
+    client.on_message=on_messageWires #attach function to callback
     client.subscribe("main_channel")
     dictionary = ["Module1", "R"]
     temp1 = json.dumps(dictionary)

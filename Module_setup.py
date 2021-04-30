@@ -170,7 +170,7 @@ def timermodule_setup(used_mode):
 
     while not info_complete_timer:
         if used_mode == "D":
-            output.append(300)
+            output.append(70)
             output.append(60)
             info_complete_timer = True
             print("Mode 'D', timer is 5 minutes and blinks from 60 seconds.")

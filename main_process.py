@@ -23,7 +23,7 @@ logging.info("Var's set: amount_mistakes, {}; active_Modules, {}; status, {}; ti
 
 ########################################
 
-def on_message(client, userdata, message):
+def on_messageMain(client, userdata, message):
     global amount_mistakes, active_Modules, status, time_up, Bomb_active
     new_message = json.loads(str(message.payload.decode("utf-8")))
     logging.info("message received in main_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
@@ -57,7 +57,7 @@ def main_process(max_mistakes):
     broker_adress="192.168.178.15"
     instancename = "MAIN"
     client = mqtt.Client(instancename) #create new instance
-    client.on_message=on_message #attach function to callback
+    client.on_message=on_messageMain #attach function to callback
     client.connect(broker_adress) #connect to broker
     client.loop_start() #start the loop
     client.subscribe("main_channel")
