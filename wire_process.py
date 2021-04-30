@@ -4,10 +4,18 @@ import paho.mqtt.client as mqtt #import the client1
 import json
 import logging
 
+NOTCLEARED = True
+
+def on_message(client, userdata, message):
+    global NOTCLEARED
+    new_message = json.loads(str(message.payload.decode("utf-8")))
+    logging.info("message received in wire_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
+    if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
+        NOTCLEARED = False
+
+
 def Check_UI(wires, correct, DEBUG):
-    global NOTCLEARED, WINSTATUS
-    WINSTATUS = 0
-    NOTCLEARED = True
+    global NOTCLEARED
     
     if DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
@@ -15,19 +23,21 @@ def Check_UI(wires, correct, DEBUG):
         logging.basicConfig(filename='logfile.log', level=logging.WARNING, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
 
     
-    logging.info("Var's set: WINSTATUS, {}; NOTCLEARED, {}; DEBUG, {}".format(WINSTATUS, NOTCLEARED, DEBUG))
+    logging.info("Var's set: NOTCLEARED, {}; DEBUG, {}".format(NOTCLEARED, DEBUG))
 
     broker_address="192.168.178.15" 
     client = mqtt.Client("PWire") #create new instance
     logging.info("created new instance PWire")
     client.connect(broker_address) #connect to broker
     logging.info("Connected to broker")
-
+    client.on_message=on_message #attach function to callback
+    client.subscribe("main_channel")
     dictionary = ["Module1", "R"]
     temp1 = json.dumps(dictionary)
     logging.info("Created a JSON dump of the register message")
     client.publish("main_channel",temp1)#publish
     logging.info("Published message R to the main channel")
+
     global DRAAD1, DRAAD2, DRAAD3, DRAAD4, DRAAD5, DRAAD6
     global Wire_Cut_1, Wire_Cut_2, Wire_Cut_3, Wire_Cut_4, Wire_Cut_5, Wire_Cut_6
     global wire_behandeld_1, wire_behandeld_2, wire_behandeld_3, wire_behandeld_4, wire_behandeld_5, wire_behandeld_6
@@ -109,6 +119,7 @@ def Check_UI(wires, correct, DEBUG):
             NOTCLEARED = False
         pass
     gpio.cleanup()
+    exit(0)
     return
 #-------------------------------------------------------------------------------
 def CallbackD1(channel):

@@ -1,7 +1,6 @@
 #TODO:
 # Make a better wire_process.py
 # Implement a stop from message (MQTT) in wire_process.py
-# Implement in timer_process.py that the function will send the message to start blinken from anywhere without repeating and taking to long
 # Implement Logging in all processes (Main_process and MainV2 allready done.)
 # Clean up Imports
 
@@ -98,6 +97,8 @@ def main(DEBUG):
     main_multiprocess.join()                                                                                            #Not desided what to do with them.. Might not need them
     wires_multiprocess.join()                                                                                           #Not desided what to do with them.. Might not need them
     timer_multiprocess.join()                                                                                           #Not desided what to do with them.. Might not need them
+    gpio.cleanup()
+    exit(0)
     return
 
 #------------------------------------------------------------------------------
