@@ -89,13 +89,13 @@ def main(DEBUG):
     wires_multiprocess = multiprocessing.Process(target=Check_UI, args=(module_info[8], module_info[9], DEBUG))         #Creates the wire module process and stores it in a variable
     timer_multiprocess = multiprocessing.Process(target=clock_process, args=(module_info[2], module_info[3], DEBUG))    #Creates the timer module process and stores it in a variable
     blink_multiprocess = multiprocessing.Process(target=blinking_PRE_process, args=(DEBUG,))
-    main_multiprocess.start()                                                                                           #Starts main process
-    sleep(1)                                                                                                            #Is not needed, it is a bit of superstition
-    wires_multiprocess.start()                                                                                          #Starts wire process
-    sleep(1)                                                                                                            #Is not needed, it is a bit of superstition
-    timer_multiprocess.start()                                                                                          #Starts Timer process
-    sleep(1)
+    main_multiprocess.start()
+    sleep(4)
     blink_multiprocess.start()
+    sleep(4)                                                                                                            #Is not needed, it is a bit of superstition
+    wires_multiprocess.start()                                                                                          #Starts wire process
+    sleep(4)                                                                                                            #Is not needed, it is a bit of superstition
+    timer_multiprocess.start()                                                                                          #Starts Timer process
     print("Started the 'main', 'wires' and 'timer' process")                                                     #Logs that all processes have been started
     
     main_multiprocess.join()                                                                                            #Not desided what to do with them.. Might not need them
