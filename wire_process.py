@@ -3,15 +3,19 @@ import RPi.GPIO as gpio
 import paho.mqtt.client as mqtt #import the client1
 import json
 import logging
+from time import sleep
 
 NOTCLEARED = True
 
 def on_messageWires(client, userdata, message):
     global NOTCLEARED
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    logging.info("message received in wire_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
+    print("WIRE: message received in wire_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
     if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
         NOTCLEARED = False
+        sleep(2)
+        gpio.cleanup()
+        exit(0)
 
 
 def Check_UI(wires, correct, DEBUG):
@@ -23,20 +27,20 @@ def Check_UI(wires, correct, DEBUG):
         logging.basicConfig(filename='logfile.log', level=logging.WARNING, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
 
     
-    logging.info("Var's set: NOTCLEARED, {}; DEBUG, {}".format(NOTCLEARED, DEBUG))
+    print("WIRE: Var's set: NOTCLEARED, {}; DEBUG, {}".format(NOTCLEARED, DEBUG))
 
     broker_address="192.168.178.15" 
     client = mqtt.Client("PWire") #create new instance
-    logging.info("created new instance PWire")
+    print("WIRE: created new instance PWire")
     client.connect(broker_address) #connect to broker
-    logging.info("Connected to broker")
+    print("WIRE: Connected to broker")
     client.on_message=on_messageWires #attach function to callback
     client.subscribe("main_channel")
     dictionary = ["Module1", "R"]
     temp1 = json.dumps(dictionary)
-    logging.info("Created a JSON dump of the register message")
+    print("WIRE: Created a JSON dump of the register message")
     client.publish("main_channel",temp1)#publish
-    logging.info("Published message R to the main channel")
+    print("WIRE: Published message R to the main channel")
 
     global DRAAD1, DRAAD2, DRAAD3, DRAAD4, DRAAD5, DRAAD6
     global Wire_Cut_1, Wire_Cut_2, Wire_Cut_3, Wire_Cut_4, Wire_Cut_5, Wire_Cut_6
@@ -66,7 +70,7 @@ def Check_UI(wires, correct, DEBUG):
     if not (DRAAD1 + DRAAD2 + DRAAD3 + DRAAD4 + DRAAD5 + DRAAD6) == 64 or not (Wire_Cut_1 + Wire_Cut_2 + Wire_Cut_3 + Wire_Cut_4 + Wire_Cut_5 + Wire_Cut_6 + wire_behandeld_1 + wire_behandeld_2 + wire_behandeld_3 + wire_behandeld_4 + wire_behandeld_5 + wire_behandeld_6) == 0:
         logging.error("Base variables have not been added correctly. This may couse glitches further in the program")
     else:
-        logging.info("Wire variables created correctly in the wire process")
+        print("WIRE: Wire variables created correctly in the wire process")
 
     gpio.setwarnings(DEBUG)
     gpio.setmode(gpio.BOARD)
@@ -125,7 +129,7 @@ def Check_UI(wires, correct, DEBUG):
 def CallbackD1(channel):
     global Wire_Cut_1
     gpio.remove_event_detect(DRAAD1)
-    print("Draad 1 doorgeknipt")
+    print("WIRE: Draad 1 doorgeknipt")
     Wire_Cut_1 = 1
     return
 
@@ -133,7 +137,7 @@ def CallbackD1(channel):
 def CallbackD2(channel):
     global Wire_Cut_2
     gpio.remove_event_detect(DRAAD2)
-    print("Draad 2 doorgeknipt")
+    print("WIRE: Draad 2 doorgeknipt")
     Wire_Cut_2 = 1
     return
 
@@ -141,7 +145,7 @@ def CallbackD2(channel):
 def CallbackD3(channel):
     global Wire_Cut_3
     gpio.remove_event_detect(DRAAD3)
-    print("Draad 3 doorgeknipt")
+    print("WIRE: Draad 3 doorgeknipt")
     Wire_Cut_3 = 1
     return
 
@@ -149,7 +153,7 @@ def CallbackD3(channel):
 def CallbackD4(channel):
     global Wire_Cut_4
     gpio.remove_event_detect(DRAAD4)
-    print("Draad 4 doorgeknipt")
+    print("WIRE: Draad 4 doorgeknipt")
     Wire_Cut_4 = 1
     return
 
@@ -157,7 +161,7 @@ def CallbackD4(channel):
 def CallbackD5(channel):
     global Wire_Cut_5
     gpio.remove_event_detect(DRAAD5)
-    print("Draad 5 doorgeknipt")
+    print("WIRE: Draad 5 doorgeknipt")
     Wire_Cut_5 = 1
     return
 
@@ -165,7 +169,7 @@ def CallbackD5(channel):
 def CallbackD6(channel):
     global Wire_Cut_6
     gpio.remove_event_detect(DRAAD6)
-    print("Draad 6 doorgeknipt")
+    print("WIRE: Draad 6 doorgeknipt")
     Wire_Cut_6 = 1
     return
 #-------------------------------------------------------------------------------

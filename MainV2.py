@@ -6,8 +6,6 @@
 
 
 #All imports:
-from random import randrange
-import sys
 import logging
 
 from pause import until
@@ -20,7 +18,6 @@ import logging
 import RPi.GPIO as gpio
 
 from random import randrange
-from time import sleep
 from sys import exit
 import logging
 
@@ -61,7 +58,7 @@ if __name__ == "__main__":
             DEBUG = False                                                                   #Sets DEBUG variable used in all processes to change the behavior/output/logging
             info_complete_debug = True                                                      #Changes variable to break free of a loop
         else:                                                                               #Executes if input was incorrect
-            print("Incorrect input, yours was {}. Only use y/n/Y/Y".format(debug_asking))   #Tells user that there is an issue with their input, and shows their input
+            print("INIT_MAIN: Incorrect input, yours was {}. Only use y/n/Y/Y".format(debug_asking))   #Tells user that there is an issue with their input, and shows their input
     if DEBUG:                                                                               #Checks if DEBUG is True
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s') #Sets logging details
     if not DEBUG:                                                                           #Checks if DEBUG is False
@@ -83,7 +80,7 @@ if __name__ == "__main__":
 
 def main(DEBUG):
     module_info = setup_main()                                                                                          # This function will ask en sort all info needed to set up the bomb. See Module_setup.py for more info
-    print("In main: \n\t{}".format(module_info))                                                                 #Logs all the peramiters used by the different modules
+    print("INIT_MAIN: In main: \n\t{}".format(module_info))                                                                 #Logs all the peramiters used by the different modules
     input("Press enter to start the processes")                                                                         #Waits for use input before continuing
     main_multiprocess = multiprocessing.Process(target=main_process, args=(module_info[1],))                            #Creates the main counting process and stores it in a variable
     wires_multiprocess = multiprocessing.Process(target=Check_UI, args=(module_info[8], module_info[9], DEBUG))         #Creates the wire module process and stores it in a variable
@@ -96,7 +93,7 @@ def main(DEBUG):
     wires_multiprocess.start()                                                                                          #Starts wire process
     sleep(4)                                                                                                            #Is not needed, it is a bit of superstition
     timer_multiprocess.start()                                                                                          #Starts Timer process
-    print("Started the 'main', 'wires' and 'timer' process")                                                     #Logs that all processes have been started
+    print("INIT_MAIN: Started the 'main', 'wires' and 'timer' process")                                                     #Logs that all processes have been started
     
     main_multiprocess.join()                                                                                            #Not desided what to do with them.. Might not need them
     wires_multiprocess.join()                                                                                           #Not desided what to do with them.. Might not need them
