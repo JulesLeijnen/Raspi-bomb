@@ -26,7 +26,7 @@ print("MAIN: Var's set: amount_mistakes, {}; active_Modules, {}; status, {}; tim
 def on_messageMain(client, userdata, message):
     global amount_mistakes, active_Modules, status, time_up, Bomb_active
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("MAIN: message received in main_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
+    print("MAIN: message received in main_process.py: {}\n".format(new_message))
     if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
         Bomb_active = False
         exit(0)    
@@ -78,6 +78,7 @@ def main_process(max_mistakes):
             client.publish("main_channel",temp2)
             print("MAIN: Entered the BOOM! section og main_process")
             print("MAIN: BOOM!\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}".format(amount_mistakes, active_Modules, status, time_up))
+    sleep(5)
     gpio.cleanup()
     exit(0)
     client.loop_stop() #stop the loop

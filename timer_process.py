@@ -14,7 +14,7 @@ import json
 def on_messageWires(client, userdata, message):
     global defusedTimer,time_left
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("TIMER: message received in wire_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
+    print("TIMER: message received in wire_process.py: {}".format(new_message,))
     if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
         endtime = time_left
         defusedTimer = True
@@ -65,7 +65,7 @@ def on_messageWires(client, userdata, message):
 #-----------------------------------------------
 def clock_process(time_total, blinkfrom, DEBUG):
     global defusedTimer, time_left
-    defused = False
+    defusedTimer = False
     if DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
     if not DEBUG:
@@ -88,7 +88,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
     messageT = json.dumps(dictionary2)                                      # "
     dictionary3 = ["TimerModule", "B", time_total, blinkfrom, starttime]    #Preset message to tell the blinking process to start blinking. (Format: ["SendFrom", "Blinking command", "Total time", "Blink from", startfrom]).
     messageB = json.dumps(dictionary3)                                      # "
-
+    client.subscribe("main_channel")
     client.publish("main_channel", messageB)    #Tells the blinking process all the peramiters that are needed for it.
 #    client.publish("main_channel", messageR)        #Tells the main process that it exists (Send predefined message).
 

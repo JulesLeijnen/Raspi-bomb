@@ -13,7 +13,8 @@ B_procces_inprogress = False
 def on_messageBLink(client, userdata, message):
     global defused, B_procces_inprogress, blinkpin                               # B_procces_inprogress is a variable that makes sure the blinking sequence can only happen ones, and defused tells the blinker to stop.
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("BLINK: message received in blinking_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
+    print("BLINK: A message received")
+    print("BLINK: message received in blinking_process.py: {}".format(new_message))
     if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
         defused = True
         temp1 = json.dump(["B1", "Cleared 10-4"])
@@ -33,10 +34,8 @@ def on_messageBLink(client, userdata, message):
             currently_blinking = not currently_blinking
             if currently_blinking and time() < new_message[4] + new_message[2]:
                 gpio.output(blinkpin, gpio.HIGH)
-                print("BLINK: HIGH")
             elif not currently_blinking and time() < new_message[4] + new_message[2]:
                 gpio.output(blinkpin, gpio.LOW)
-                print("BLINK: LOW")
             elif time() > new_message[4] + new_message[2] + 1:
                 defused = True
             pass

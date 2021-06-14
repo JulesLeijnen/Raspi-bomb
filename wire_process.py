@@ -10,7 +10,7 @@ NOTCLEARED = True
 def on_messageWires(client, userdata, message):
     global NOTCLEARED
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("WIRE: message received in wire_process.py: {}\nMessage topic={}\nMessage qos={}\nMessage retain flag={}\nMessage type={}\n".format(new_message, message.topic, message.qos, message.retain, type(message)))
+    print("WIRE: message received in wire_process.py: {}".format(new_message))
     if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
         NOTCLEARED = False
         sleep(2)
