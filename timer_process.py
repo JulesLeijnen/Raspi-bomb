@@ -19,7 +19,7 @@ def on_messageWires(client, userdata, message):
     global defusedTimer,time_left
     new_message = json.loads(str(message.payload.decode("utf-8")))
     print("TIMER: message received in wire_process.py: {}".format(new_message,))
-    WiresMessageResolver(new_message, display)
+    WiresMessageResolver(new_message, display) #How do I give the function the display that is made in the main function of this process?
     
 def WiresMessageResolver(message, display):   
     if message[1] == "Cleared":
