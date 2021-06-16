@@ -95,7 +95,7 @@ def Check_UI(wires, correct, DEBUG):
 
     temp_list = ["Module1", "D"]
     MessageD = json.dumps(temp_list)
-    temp_list2 = ["Module1", "D"]
+    temp_list2 = ["Module1", "F"]
     MessageF = json.dumps(temp_list2)
 
     while NOTCLEARED:
@@ -124,7 +124,6 @@ def Check_UI(wires, correct, DEBUG):
         pass
     gpio.cleanup()
     exit(0)
-    return
 #-------------------------------------------------------------------------------
 def CallbackD1(channel):
     global Wire_Cut_1
