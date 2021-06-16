@@ -23,12 +23,18 @@ def on_messageWires(client, userdata, message):
     
 def WiresMessageResolver(message, display):   
     if message[1] == "Cleared":
-        #Change thing in clock_process()
+        #Change thing in clock_process() (Change defused var)
+        #Somehow fetch time_left var from clock_process()
+        #Cleared_clock_thing(display, time_left)
         exit_proc()
     elif message[1] == "BOOM":
-        #Change thing in clock_process()
+        #Change thing in clock_process() (Change defused var)
         display.show("", -1, -1) 
         exit_proc()
+
+def cleared_clock_blinker(display, time_left):
+    display.show()
+    return
 
 def exit_proc():
     sleep(2)        #Give program time to finish previous command before shutting down
@@ -104,10 +110,10 @@ def clock_process(time_total, blinkfrom, DEBUG):
             sec2 = "00"
         display.show("  {}{}".format(minu2, sec2), 1, 2)
         time_left -= 100                                    #Takes one second from the timer.
-        until(time1 + 1.00)                                 #Waits untill one second has passed from the beginning of this while-loop itiration.
+        until(time1 + 1.00)                                 #Waits untill excactly one second has passed from the beginning of this while-loop itiration.
         pass
 
-    while 60000 > time_left > 6000 and not defusedTimer:                          #Is active when time left > 60 seconds.
+    while 60000 > time_left > 6000 and not defusedTimer:    #Is active when time left > 60 seconds.
         time2 = time()                                      #Takes current time to determen later how lont to wait for.
         minu1, sec1 = divmod((time_left//100), 60)
         minu2, sec2 = str(minu1), str(sec1)
