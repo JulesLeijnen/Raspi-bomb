@@ -33,8 +33,22 @@ def WiresMessageResolver(message, display):
         exit_proc()
 
 def cleared_clock_blinker(display, time_left):
-    display.show()
-    return
+    minu1, sec1 = divmod((time_left//100), 60)
+    if minu1 < 10 and sec1 < 10:
+        Cleared_timer_string = "  0{}0{}".format(minu1, sec1)
+    elif minu1 < 10 and sec1 > 9:
+        Cleared_timer_string = "  0{}{}".format(minu1, sec1)
+    elif minu1 > 9 and sec1 < 10:
+        Cleared_timer_string = "  {}0{}".format(minu1, sec1)
+    elif minu1 > 9 and sec1 > 9:
+        Cleared_timer_string = "  {}{}".format(minu1, sec1)
+    else:
+        Cleared_timer_string = " ERROR"
+    for _ in range(10):
+        display.show(Cleared_timer_string, 1, 2)
+        sleep(0.5)
+        display.show("      ", -1, -1)
+        sleep(0.5)
 
 def exit_proc():
     sleep(2)        #Give program time to finish previous command before shutting down
