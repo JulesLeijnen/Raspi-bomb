@@ -19,9 +19,6 @@ def on_mqtt_messageWIRE(client, userdata, message):
     WireMessageResolver(new_message) #, display) #How do I give the function the display that is made in the main function of this process?
 
 def WireMessageResolver(message):
-    return
-
-def TimerMessageResolver(message):
     global NOTCLEARED
     if message[1] in ["Cleared", "BOOM"]:
         NOTCLEARED = False
@@ -54,7 +51,7 @@ def Wire_PubSubStuff():
         Wireclient.connect(MQTT_BROKER)
         Wireclient.loop_start()
     except:
-        print(">>Timer_PubSubStuff: Connection Failed")
+        print(">>Wire_PubSubStuff: Connection Failed")
     while not Wireclient.connected_flag and not Wireclient.bad_connection_flag:  #wait in loop
 	    print(">> Wire_PubSubStuff(): in connection wait loop")
 	    sleep(1)
