@@ -3,7 +3,7 @@
 #Imports
 from pause import until
 import logging
-#import pdc6x1
+import pdc6x1
 from time import sleep, time
 import paho.mqtt.client as mqtt #import the client1
 import json
@@ -15,24 +15,26 @@ MQTT_QOS = 2
 MQTT_RETAIN = True
 
 #-----------------------------------------------
-def on_mqtt_messageWIRE(client, userdata, message):
+def on_mqtt_messageTIMER(client, userdata, message):
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("TIMER: message received in wire_process.py: {}".format(new_message,))
-    WiresMessageResolver(new_message) #, display) #How do I give the function the display that is made in the main function of this process?
+    print("TIMER: message received in timer_process.py: {}".format(new_message,))
+    TimerMessageResolver(new_message) #, display) #How do I give the function the display that is made in the main function of this process?
     
-def WiresMessageResolver(message): #, display):
-    global defusedTimer, time_left
+def TimerMessageResolver(message): #, display):
+    global defusedTimer, time_left, display
     if message[1] == "Cleared":
         defusedTimer = True
         end_time = time_left
-        #Cleared_clock_thing(display, time_left)
+        cleared_clock_blinker(display, time_left)
         print("CLEARED IN TIMER MODULE")
-        exit_proc()
+        sleep(2)        #Give program time to finish previous command before shutting down (Superstition from screenshot reading adventure)
+        exit(0)
     elif message[1] == "BOOM":
         defusedTimer = True
-        #display.show("", -1, -1)
+        display.show("", -1, -1)
         print("BOOM IN TIMER MODULE")
-        exit_proc()
+        sleep(2)        #Give program time to finish previous command before shutting down (Superstition from screenshot reading adventure)
+        exit(0)
     else:
         print("TEMP1")
         defusedTimer = True
@@ -50,22 +52,19 @@ def cleared_clock_blinker(display, time_left):
     else:
         Cleared_timer_string = " ERROR"
     for _ in range(10):
-        #display.show(Cleared_timer_string, 1, 2)
+        display.show(Cleared_timer_string, 1, 2)
         sleep(0.5)
-        #display.show("      ", -1, -1)
+        display.show("      ", -1, -1)
         sleep(0.5)
 
-def exit_proc():
-    sleep(2)        #Give program time to finish previous command before shutting down (Superstition from screenshot reading adventure)
-    exit(0)
 
-def on_mqtt_connectWIRE(client, userdata, flags, rc):
+def on_mqtt_connectTIMER(client, userdata, flags, rc):
     if (rc ==0):
         mqtt.Client.connected_flag = True
-        print(">> on_mqtt_connectWIRE: mqtt broker connection OK")
+        print(">> on_mqtt_connectTIMER: mqtt broker connection OK")
         client.subscribe(MQTT_TOPIC_FROM_MAIN, MQTT_QOS)
     else:
-        print(">> on_mqtt_connectWIRE: mqtt broker error: {}".format(rc))
+        print(">> on_mqtt_connectTIMER: mqtt broker error: {}".format(rc))
         client.bad_connection_flag = True
 
 def Timer_PubSubStuff():
@@ -74,8 +73,8 @@ def Timer_PubSubStuff():
     mqtt.Client.bad_connection_flag = False
 
     Timerclient = mqtt.Client("Timerclient")
-    Timerclient.on_connect = on_mqtt_connectWIRE
-    Timerclient.on_message = on_mqtt_messageWIRE
+    Timerclient.on_connect = on_mqtt_connectTIMER
+    Timerclient.on_message = on_mqtt_messageTIMER
 
     try:
         Timerclient.connect(MQTT_BROKER)
@@ -83,27 +82,26 @@ def Timer_PubSubStuff():
     except:
         print(">>Timer_PubSubStuff: Connection Failed")
     while not Timerclient.connected_flag and not Timerclient.bad_connection_flag:  #wait in loop
-	    print(">> init_mqtt: in connection wait loop")
+	    print(">> Timer_PubSubStuff: in connection wait loop")
 	    sleep(1)
     if Timerclient.bad_connection_flag:
-	    Timerclient.loop_stop()
-	    exit_proc()
+        Timerclient.loop_stop()
+        sleep(2)
+        exit(0)
     return Timerclient
 
 #-----------------------------------------------
 def clock_process(time_total, blinkfrom, DEBUG):
-    global defusedTimer, time_left
+    global defusedTimer, time_left, display
     defusedTimer = False
-    
-    starttime = 14022002
 
     if DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.DEBUG, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
     if not DEBUG:
         logging.basicConfig(filename='logfile.log', level=logging.WARNING, format='%(levelname)s: %(asctime)s: %(filename)s: %(funcName)s: \n\t%(message)s')
 
-    #display = pdc6x1.PDC6x1()
-    #display.show("  0000", 0, 2)
+    display = pdc6x1.PDC6x1()
+    display.show("  0000", 0, 2)
 
     starttime = 2507.1973
 
@@ -118,6 +116,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
     messageB = json.dumps(dictionary3)
     Timerclient.publish(MQTT_TOPIC_FROM_MAIN, messageB)    #Tells the blinking process all the peramiters that are needed for it.
     until(starttime)                                #Waits for all the other time based programs to get ready to start and starts after a predeterment time 2.5 seconds.
+
     #Start Counting
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     while time_left > 59999 and not defusedTimer:
@@ -128,7 +127,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
             sec2 = "0" + sec2
         if sec1 == 0:
             sec2 = "00"
-        #display.show("  {}{}".format(minu2, sec2), 1, 2)
+        display.show("  {}{}".format(minu2, sec2), 1, 2)
         time_left -= 100                                    #Takes one second from the timer.
         until(temp_time + 1.00)                                 #Waits untill excactly one second has passed from the beginning of this while-loop itiration.
         pass
@@ -141,7 +140,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
             sec2 = "0" + sec2
         if sec1 == 0:
             sec2 = "00"
-        #display.show("  0{}{}".format(minu2, sec2), 1, 2)
+        display.show("  0{}{}".format(minu2, sec2), 1, 2)
         time_left -= 100                                    #Takes one second from the timer.
         until(temp_time + 1.00)                                 #Waits untill one second has passed from the beginning of this while-loop itiration.
         pass
@@ -154,19 +153,18 @@ def clock_process(time_total, blinkfrom, DEBUG):
             space = "0"
         if time_left < 100:
             space = "00"
-        #display.show(("  " + space + str(time_left)), 1, 2) #NOGFORMATTEN VAN DE SPACINGK
+        display.show(("  " + space + str(time_left)), 1, 2) #NOGFORMATTEN VAN DE SPACINGK
         time_left -= 1                                      #Takes one hundreth of a second from the timer.
         until(temp_time + 0.01)                                 #Waits untill one second has passed from the beginning of this while-loop itiration.
         pass        
         
 
     while time_left < 1:                            #Is activated when time is less than 0.01 seconds
-        #display.show("  0000", 1, 2)
-        Timerclient.publish("main_channel", messageT)#Tells the main process that Time's up (Send predefined message).
-        #display.show("      ", -1, -1)
+        display.show("  0000", 1, 2)
+        Timerclient.publish(MQTT_TOPIC_TO_MAIN, messageT)#Tells the main process that Time's up (Send predefined message).
+        display.show("      ", -1, -1)
         exit(0)
     while defusedTimer == True:
         print("Exited from bomb defused or 3 faults, no time up...")
-        exit_proc()
-
-clock_process(120, 60, 1)
+        sleep(2)        #Give program time to finish previous command before shutting down (Superstition from screenshot reading adventure)
+        exit(0)

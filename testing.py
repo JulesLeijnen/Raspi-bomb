@@ -1,3 +1,18 @@
+import paho.mqtt.client as mqtt
+import json
+
+broker_adress="localhost"
+instancename = "MAIN"
+client = mqtt.Client(instancename)
+print("1")
+client.connect(broker_adress)
+print("2")
+dictionary = ["MAIN", "TEST1"]
+temp1 = json.dumps(dictionary)
+print("3")
+client.publish("from_main",temp1)
+print("4")
+
 # time_left = 7000
 # minu1, sec1 = divmod((time_left//100), 60)
 # print(minu1)
