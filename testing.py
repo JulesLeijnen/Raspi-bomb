@@ -1,11 +1,9 @@
-time_left = 7000
-minu1, sec1 = divmod((time_left//100), 60)
-print(minu1)
-print(type(minu1))
-print(sec1)
-print(type(sec1))
-
-
+# time_left = 7000
+# minu1, sec1 = divmod((time_left//100), 60)
+# print(minu1)
+# print(type(minu1))
+# print(sec1)
+# print(type(sec1))
 # x = input(str("test")).upper()
 # print(x)
 # x = "{}".format(False)
@@ -32,7 +30,6 @@ print(type(sec1))
 #     x8 = time.time()
 #     x9 = time.time()
 #     x10 = time.time()
-
 #     print( x10 - x1)
 #     time.sleep(0.1)
 #     print(time.time())
