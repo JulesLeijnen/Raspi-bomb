@@ -20,18 +20,22 @@ def on_mqtt_messageWIRE(client, userdata, message):
     print("TIMER: message received in wire_process.py: {}".format(new_message,))
     WiresMessageResolver(new_message) #, display) #How do I give the function the display that is made in the main function of this process?
     
-def WiresMessageResolver(message): #, display):   
+def WiresMessageResolver(message): #, display):
+    global defusedTimer, time_left
     if message[1] == "Cleared":
-        #Change thing in clock_process() (Change defused var)
-        #Somehow fetch time_left var from clock_process()
+        defusedTimer = True
+        end_time = time_left
         #Cleared_clock_thing(display, time_left)
         print("CLEARED IN TIMER MODULE")
         exit_proc()
     elif message[1] == "BOOM":
-        #Change thing in clock_process() (Change defused var)
+        defusedTimer = True
         #display.show("", -1, -1)
         print("BOOM IN TIMER MODULE")
         exit_proc()
+    else:
+        print("TEMP1")
+        defusedTimer = True
 
 def cleared_clock_blinker(display, time_left):
     minu1, sec1 = divmod((time_left//100), 60)
@@ -161,5 +165,8 @@ def clock_process(time_total, blinkfrom, DEBUG):
         Timerclient.publish("main_channel", messageT)#Tells the main process that Time's up (Send predefined message).
         #display.show("      ", -1, -1)
         exit(0)
+    while defusedTimer == True:
+        print("Exited from bomb defused or 3 faults, no time up...")
+        exit_proc()
 
 clock_process(120, 60, 1)
