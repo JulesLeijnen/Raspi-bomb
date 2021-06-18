@@ -1,76 +1,84 @@
-from pause import until
-import RPi.GPIO as gpio
-import paho.mqtt.client as mqtt #import the client1
-from time import sleep, time
-import json
+#TODO:
+# Make a better wire_process.py
+# Implement a stop from message (MQTT) in wire_process.py
+# Implement in timer_process.py that the function will send the message to start blinken from anywhere without repeating and taking to long
+# Implement Logging in all processes (Main_process and MainV2 allready done.)
+# Clean up Imports
 import logging
+import paho.mqtt.client as mqtt                             #import the client needed fot the MQTT broker
+from time import sleep
+import json                                                 #Imports JSON to convert arrays to strings and back
+from sys import exit
+import RPi.GPIO as gpio                                     #Imports the GPIO lib to control the GPIO pins
+########################################
 
-Blink_message_recieved = False
-defused = False
-blinkpin = 22
-B_procces_inprogress = False
+#These are all the variables that the main process needs to keep track of
+amount_mistakes = 0
+active_Modules = 0
+status = "Sleeping"
+time_up = 0
+Bomb_active = True
 
-def on_messageBLink(client, userdata, message):
-    global defused, B_procces_inprogress, blinkpin                               # B_procces_inprogress is a variable that makes sure the blinking sequence can only happen ones, and defused tells the blinker to stop.
+print("MAIN: Var's set: amount_mistakes, {}; active_Modules, {}; status, {}; time_up, {}".format(amount_mistakes, active_Modules, status, time_up))
+
+########################################
+
+def on_messageMain(client, userdata, message):
+    global amount_mistakes, active_Modules, status, time_up, Bomb_active
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("BLINK: A message received")
-    print("BLINK: message received in blinking_process.py: {}".format(new_message))
+    print("MAIN: message received in main_process.py: {}\n".format(new_message))
     if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
-        defused = True
-        temp1 = json.dump(["B1", "Cleared 10-4"])
-        client.publish("main_channel",temp1)
-        sleep(2)
-        gpio.cleanup()
-        exit(0)
+        Bomb_active = False
+        exit(0)    
+    elif new_message[1] == "R": #Register
+        active_Modules += 1
+        if status == "Sleeping":
+            status = "Active"
+            print("MAIN: Changing status from 'Sleeping' to 'Active' And added 1 to active_Modules")
+        else:
+            print("MAIN: Added 1 to active_Modules, current total is {}".format(active_Modules))
+    elif new_message[1] == "D": #Done
+        active_Modules -= 1
+        print("MAIN: Removed 1 from active_Modules, current total is {}".format(active_Modules))
+    elif new_message[1] == "T": #Time up
+        time_up = 1
+        print("MAIN: Time is up, current state is '{}'".format(bool(time_up)))
+    elif new_message[1] == "F": #Fault +1
+        amount_mistakes += 1
+        print("MAIN: Added 1 to amount_mistakes, current total is {}".format(amount_mistakes))
         
+########################################
 
-    if new_message[1] == "B" and not B_procces_inprogress:
-        B_procces_inprogress = True
-        until(new_message[4] + new_message[2] - new_message[3])
-        print("BLINK: UNTILL over")
-        currently_blinking = False
-        while not defused:
-            until(time() + 0.5)
-            currently_blinking = not currently_blinking
-            if currently_blinking and time() < new_message[4] + new_message[2]:
-                gpio.output(blinkpin, gpio.HIGH)
-            elif not currently_blinking and time() < new_message[4] + new_message[2]:
-                gpio.output(blinkpin, gpio.LOW)
-            elif time() > new_message[4] + new_message[2] + 1:
-                defused = True
-            pass
-        for _ in range(10):
-            gpio.output(blinkpin, gpio.HIGH)
-            sleep(0.1)
-            gpio.output(blinkpin, gpio.LOW)
-            sleep(0.1)
-            gpio.cleanup()
-            exit(0)
-            
+def main_process(max_mistakes):
+    global amount_mistakes, active_Modules, status, time_up, Bomb_active
 
-def blinking_PRE_process(DEBUG):
-    global defused, B_procces_inprogress, blinkpin
+    Bomb_active = True
+
     broker_adress="192.168.178.15"
-    client = mqtt.Client("B1") #create new instance
-    client.on_message=on_messageBLink #attach function to callback
+    instancename = "MAIN"
+    client = mqtt.Client(instancename) #create new instance
+    client.on_message=on_messageMain #attach function to callback
     client.connect(broker_adress) #connect to broker
     client.loop_start() #start the loop
     client.subscribe("main_channel")
-    print("BLINK: Connected to broker on adress {} with name 'B1' and subscribed to 'main_channel'".format(broker_adress))
-       
-
-    #Setup GPIO stuff
-    gpio.setmode(gpio.BOARD)
-    gpio.setwarnings(DEBUG)
-    gpio.setup(blinkpin, gpio.OUT)
-    gpio.output(blinkpin, gpio.HIGH)
-    sleep(0.1)
-    gpio.output(blinkpin, gpio.LOW)
-    sleep(0.1)
-
-    while not defused:
-        sleep(5)
+    print("MAIN: Connected to broker on adress {} with instance-name {} and subscribed to 'main_channel'".format(broker_adress, instancename))
+    print("MAIN: Entering the cleared or boom loop to check if the bomb is done or 'done'")
+    while Bomb_active:
+        sleep(0.5)
+        if status == "Active" and active_Modules < 1:
+            dictionary = ["MAIN", "CLEARED"]
+            temp1 = json.dumps(dictionary)
+            client.publish("main_channel",temp1)
+            print("MAIN: Entered the cleared section of main_processs")
+            print("MAIN: CLEARED\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}\n".format(amount_mistakes, active_Modules, status, time_up))
+        pass
+        if amount_mistakes > (max_mistakes - 1) or time_up == 1:
+            dictionary = ["MAIN", "BOOM"]
+            temp2 = json.dumps(dictionary)
+            client.publish("main_channel",temp2)
+            print("MAIN: Entered the BOOM! section og main_process")
+            print("MAIN: BOOM!\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}".format(amount_mistakes, active_Modules, status, time_up))
+    sleep(5)
+    gpio.cleanup()
     exit(0)
-
-
-
+     #stop the loop

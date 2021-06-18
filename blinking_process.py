@@ -39,7 +39,6 @@ def Blinking_Process(DEBUG):
     gpio.cleanup()
     sleep(2)
     exit(0)
-    return
 
 #------------------------------------MQTT Functions---------------------------------------
 def Blinker_PubSubStuff():

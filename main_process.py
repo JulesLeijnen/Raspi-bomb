@@ -1,84 +1,107 @@
-#TODO:
-# Make a better wire_process.py
-# Implement a stop from message (MQTT) in wire_process.py
-# Implement in timer_process.py that the function will send the message to start blinken from anywhere without repeating and taking to long
-# Implement Logging in all processes (Main_process and MainV2 allready done.)
-# Clean up Imports
+#--------------------------------------Imports---------------------------------------
 import logging
-import paho.mqtt.client as mqtt                             #import the client needed fot the MQTT broker
+import paho.mqtt.client as mqtt
 from time import sleep
-import json                                                 #Imports JSON to convert arrays to strings and back
+import json
 from sys import exit
-import RPi.GPIO as gpio                                     #Imports the GPIO lib to control the GPIO pins
-########################################
-
-#These are all the variables that the main process needs to keep track of
+#--------------------------------------Globals--------------------------------------
 amount_mistakes = 0
 active_Modules = 0
-status = "Sleeping"
-time_up = 0
-Bomb_active = True
+active_status = "Sleeping"
+bomb_done_main = False
 
-print("MAIN: Var's set: amount_mistakes, {}; active_Modules, {}; status, {}; time_up, {}".format(amount_mistakes, active_Modules, status, time_up))
+MQTT_BROKER = "localhost"
+MQTT_TOPIC_TO_MAIN = "to_main"
+MQTT_TOPIC_FROM_MAIN = "from_main"
+MQTT_QOS = 2
+MQTT_RETAIN = True
+#-------------------------------------LOGGING---------------------------------------------
 
-########################################
+#------------------------------------Main Function---------------------------------------
+def main_process(max_mistakes, DEBUG):
+    global amount_mistakes, active_Modules, active_status, Me
+    
+    #LOGGING STUFF
 
-def on_messageMain(client, userdata, message):
-    global amount_mistakes, active_Modules, status, time_up, Bomb_active
+    Mainclient = Main_PubSubStuff()
+
+    ClearedArray = ["Main_Process", "Cleared"]
+    ClearedJSONdump = json.dumps(ClearedArray)
+    BOOMArray = ["Main_Process", "BOOM"]
+    BOOMJSONdump = json.dumps(BOOMArray)
+
+    while not bomb_done_main:
+        sleep(0.5)
+        if active_status == "Active" and active_Modules < 0:
+            Mainclient.publish(MQTT_TOPIC_FROM_MAIN, ClearedJSONdump)
+            bomb_done_main = True
+        if amount_mistakes >= max_mistakes:
+            Mainclient.publish(MQTT_TOPIC_FROM_MAIN, BOOMJSONdump)
+            bomb_done_main = True
+    Mainclient.loop_stop()
+    sleep(5)
+    exit(0)
+#------------------------------------MQTT Functions---------------------------------------
+def Main_PubSubStuff():
+    Mainclient = None
+    mqtt.Client.connected_flag = False
+    mqtt.Client.bad_connection_flag = False
+
+    Mainclient = mqtt.Client("Mainclient")
+    Mainclient.on_connect = on_mqtt_connectMAIN
+    Mainclient.on_message = on_mqtt_messageMAIN
+
+    try:
+        Mainclient.connect(MQTT_BROKER)
+        Mainclient.loop_start()
+    except:
+        print(">> Main_PubSubStuff: Connection Failed")
+    while not Mainclient.connected_flag and not Mainclient.bad_connection_flag:  #wait in loop
+	    print(">> Main_PubSubStuff(): in connection wait loop")
+	    sleep(1)
+    if Mainclient.bad_connection_flag:
+        Mainclient.loop_stop()
+        sleep(2)
+        exit(0)
+    return Mainclient
+
+def on_mqtt_connectMAIN(client, userdata, flags, rc):
+    if (rc ==0):
+        mqtt.Client.connected_flag = True
+        print(">> on_mqtt_connectMAIN: mqtt broker connection OK")
+
+        client.subscribe(MQTT_TOPIC_TO_MAIN, MQTT_QOS)
+
+    else:
+        print(">> on_mqtt_connectMAIN: mqtt broker error: {}".format(rc))
+        client.bad_connection_flag = True
+
+def on_mqtt_messageMAIN(client, userdata, message):
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("MAIN: message received in main_process.py: {}\n".format(new_message))
-    if new_message[1] == "CLEARED" or new_message[1] == "BOOM":
-        Bomb_active = False
-        exit(0)    
-    elif new_message[1] == "R": #Register
+    print("WIRE: message received in wire_process.py: {}".format(new_message,))
+    MainMessageResolver(new_message)
+
+def MainMessageResolver(message):
+    global amount_mistakes, active_Modules, active_status
+
+    if message[1] == "R":
         active_Modules += 1
-        if status == "Sleeping":
-            status = "Active"
+        if active_status == "Sleeping":
+            active_status = "Active"
             print("MAIN: Changing status from 'Sleeping' to 'Active' And added 1 to active_Modules")
         else:
             print("MAIN: Added 1 to active_Modules, current total is {}".format(active_Modules))
-    elif new_message[1] == "D": #Done
+    
+    if message[1] == "D": #Done
         active_Modules -= 1
         print("MAIN: Removed 1 from active_Modules, current total is {}".format(active_Modules))
-    elif new_message[1] == "T": #Time up
-        time_up = 1
-        print("MAIN: Time is up, current state is '{}'".format(bool(time_up)))
-    elif new_message[1] == "F": #Fault +1
+    
+    if message[1] == "T":
+        amount_mistakes = 14022002
+        print("MAIN: Time is up, current state of amount_mistakes is '{}'".format(amount_mistakes))
+    
+    if message[1] == "F":
         amount_mistakes += 1
-        print("MAIN: Added 1 to amount_mistakes, current total is {}".format(amount_mistakes))
-        
-########################################
+        print("MAIN: A fault was made, current state of amount_mistakes is '{}'".format(amount_mistakes))
 
-def main_process(max_mistakes):
-    global amount_mistakes, active_Modules, status, time_up, Bomb_active
-
-    Bomb_active = True
-
-    broker_adress="192.168.178.15"
-    instancename = "MAIN"
-    client = mqtt.Client(instancename) #create new instance
-    client.on_message=on_messageMain #attach function to callback
-    client.connect(broker_adress) #connect to broker
-    client.loop_start() #start the loop
-    client.subscribe("main_channel")
-    print("MAIN: Connected to broker on adress {} with instance-name {} and subscribed to 'main_channel'".format(broker_adress, instancename))
-    print("MAIN: Entering the cleared or boom loop to check if the bomb is done or 'done'")
-    while Bomb_active:
-        sleep(0.5)
-        if status == "Active" and active_Modules < 1:
-            dictionary = ["MAIN", "CLEARED"]
-            temp1 = json.dumps(dictionary)
-            client.publish("main_channel",temp1)
-            print("MAIN: Entered the cleared section of main_processs")
-            print("MAIN: CLEARED\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}\n".format(amount_mistakes, active_Modules, status, time_up))
-        pass
-        if amount_mistakes > (max_mistakes - 1) or time_up == 1:
-            dictionary = ["MAIN", "BOOM"]
-            temp2 = json.dumps(dictionary)
-            client.publish("main_channel",temp2)
-            print("MAIN: Entered the BOOM! section og main_process")
-            print("MAIN: BOOM!\n\namount_mistakes={}\nactive_module={}\nstatus={}\ntime_up={}".format(amount_mistakes, active_Modules, status, time_up))
-    sleep(5)
-    gpio.cleanup()
-    exit(0)
-    client.loop_stop() #stop the loop
+    return

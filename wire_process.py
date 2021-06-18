@@ -15,8 +15,8 @@ MQTT_RETAIN = True
 
 def on_mqtt_messageWIRE(client, userdata, message):
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("TIMER: message received in wire_process.py: {}".format(new_message,))
-    WireMessageResolver(new_message) #, display) #How do I give the function the display that is made in the main function of this process?
+    print("WIRE: message received in wire_process.py: {}".format(new_message,))
+    WireMessageResolver(new_message)
 
 def WireMessageResolver(message):
     global NOTCLEARED
@@ -51,7 +51,7 @@ def Wire_PubSubStuff():
         Wireclient.connect(MQTT_BROKER)
         Wireclient.loop_start()
     except:
-        print(">>Wire_PubSubStuff: Connection Failed")
+        print(">> Wire_PubSubStuff: Connection Failed")
     while not Wireclient.connected_flag and not Wireclient.bad_connection_flag:  #wait in loop
 	    print(">> Wire_PubSubStuff(): in connection wait loop")
 	    sleep(1)
