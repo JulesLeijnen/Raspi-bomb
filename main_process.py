@@ -19,7 +19,7 @@ MQTT_RETAIN = True
 
 #------------------------------------Main Function---------------------------------------
 def main_process(max_mistakes, DEBUG):
-    global amount_mistakes, active_Modules, active_status, Me
+    global amount_mistakes, active_Modules, active_status, bomb_done_main
     
     #LOGGING STUFF
 
@@ -32,7 +32,7 @@ def main_process(max_mistakes, DEBUG):
 
     while not bomb_done_main:
         sleep(0.5)
-        if active_status == "Active" and active_Modules < 0:
+        if active_status == "Active" and active_Modules < 1:
             Mainclient.publish(MQTT_TOPIC_FROM_MAIN, ClearedJSONdump)
             bomb_done_main = True
         if amount_mistakes >= max_mistakes:

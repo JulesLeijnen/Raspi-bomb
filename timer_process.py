@@ -88,7 +88,7 @@ def clock_process(time_total, blinkfrom, DEBUG):
         display.show("      ", -1, -1)
         exit(0)
     while bomb_done_timer == True:
-        print("Exited from bomb defused or 3 faults, no time up...")
+        print("TIMER: Exited from bomb defused or 3 faults, no time up...")
         Timerclient.loop_stop()
         sleep(2)        #Give program time to finish previous command before shutting down (Superstition from screenshot reading adventure)
         exit(0)
@@ -145,7 +145,7 @@ def on_mqtt_connectTIMER(client, userdata, flags, rc):
 
 def on_mqtt_messageTIMER(client, userdata, message):
     new_message = json.loads(str(message.payload.decode("utf-8")))
-    print("TIMER: message received in timer_process.py: {}".format(new_message,))
+    print("TIMER: message received in timer_process.py: {}\n".format(new_message,))
     TimerMessageResolver(new_message) #, display) #How do I give the function the display that is made in the main function of this process?
  
 def TimerMessageResolver(message): #, display):
@@ -165,4 +165,4 @@ def TimerMessageResolver(message): #, display):
         exit(0)
     else:
         print("TEMP1")
-        bomb_done_timer = True
+        bomb_done_timer = False

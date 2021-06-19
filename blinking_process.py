@@ -13,10 +13,11 @@ MQTT_QOS = 2
 MQTT_RETAIN = True
 #------------------------------------Main Function---------------------------------------
 def Blinker_Process(DEBUG):
-    global DEBUGStatus, start_blinking_peramiters, bomb_done_blinker, blinkpin
-    start_blinking_process = []
+    global DEBUGStatus, blinkpin, start_blinking_peramiters, bomb_done_blinker, blinkpin
+    
     DEBUGStatus = DEBUG
     bomb_done_blinker = False
+    start_blinking_peramiters = []
     
     #Loggingstuff
 
@@ -24,18 +25,21 @@ def Blinker_Process(DEBUG):
 
     gpio_blinker_setup()
 
-    while not len(start_blinking_process) == 5:
+    while not len(start_blinking_peramiters) == 5:
+        print(start_blinking_peramiters)
         sleep(0.5)
         print("Waiting for the blinking info")
     
-    until(float(start_blinking_process[4] + (start_blinking_process[2] - start_blinking_process[3])))
+    print(time())
+    print(float(start_blinking_peramiters[4] + (start_blinking_peramiters[2] - start_blinking_peramiters[3])))
+    until(float(start_blinking_peramiters[4] + (start_blinking_peramiters[2] - start_blinking_peramiters[3])))
     
-    stoptime = time() + start_blinking_process[3]
+    stoptime = time() + start_blinking_peramiters[3]
     while time() < stoptime and not bomb_done_blinker:
         sleep(0.5)
-        #LED ON
+        gpio.output(blinkpin,gpio.HIGH)
         sleep(0.5)
-        #LED OFF
+        gpio.output(blinkpin,gpio.LOW)
     gpio.cleanup()
     sleep(2)
     exit(0)
@@ -81,10 +85,13 @@ def on_mqtt_messageBLINKER(client, userdata, message):
     return
 
 def BlinkerMessageResolver(message):
-    global Start_blinking_peramiters
+    global start_blinking_peramiters
     if len(message) == 5:
-        Start_blinking_peramiters = message
+        start_blinking_peramiters = message
+        print("TEMP22")
     else:
+        print("TEMP33")
+        print('\nType is {}, message is {}\n\n'.format(type(message), message))
         pass
     return
 
