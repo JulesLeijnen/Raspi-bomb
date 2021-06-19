@@ -85,7 +85,7 @@ def main(DEBUG):
     main_multiprocess = multiprocessing.Process(target=main_process, args=(module_info[1],))                            #Creates the main counting process and stores it in a variable
     wires_multiprocess = multiprocessing.Process(target=Check_UI, args=(module_info[8], module_info[9], DEBUG))         #Creates the wire module process and stores it in a variable
     timer_multiprocess = multiprocessing.Process(target=clock_process, args=(module_info[2], module_info[3], DEBUG))    #Creates the timer module process and stores it in a variable
-    blink_multiprocess = multiprocessing.Process(target=blinking_PRE_process, args=(DEBUG,))
+    blink_multiprocess = multiprocessing.Process(target=Blinker_Process, args=(DEBUG,))
     main_multiprocess.start()
     sleep(4)
     blink_multiprocess.start()

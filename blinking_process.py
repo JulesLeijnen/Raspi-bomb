@@ -12,7 +12,7 @@ MQTT_TOPIC_FROM_MAIN = "from_main"
 MQTT_QOS = 2
 MQTT_RETAIN = True
 #------------------------------------Main Function---------------------------------------
-def Blinking_Process(DEBUG):
+def Blinker_Process(DEBUG):
     global DEBUGStatus, start_blinking_peramiters, bomb_done_blinker, blinkpin
     start_blinking_process = []
     DEBUGStatus = DEBUG
