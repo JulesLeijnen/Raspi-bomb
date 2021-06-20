@@ -82,7 +82,7 @@ def on_mqtt_messageMAIN(client, userdata, message):
     MainMessageResolver(new_message)
 
 def MainMessageResolver(message):
-    global amount_mistakes, active_Modules, active_status
+    global amount_mistakes, active_Modules, active_status, bomb_done_main
 
     if message[1] == "R":
         active_Modules += 1
@@ -103,5 +103,9 @@ def MainMessageResolver(message):
     if message[1] == "F":
         amount_mistakes += 1
         print("MAIN: A fault was made, current state of amount_mistakes is '{}'".format(amount_mistakes))
+
+    if message[1] == "BOOM":
+        bomb_done_main = True
+        print("BOMB shut down from KillAll.py")
 
     return

@@ -28,11 +28,7 @@ def on_mqtt_connectWIRE(client, userdata, flags, rc):
         mqtt.Client.connected_flag = True
         print(">> on_mqtt_connectWIRE: mqtt broker connection OK")
 
-        RegisterArray = ["Wires1", "R"]
-        RegisterJSONdump = json.dumps(RegisterArray)
-
         client.subscribe(MQTT_TOPIC_FROM_MAIN, MQTT_QOS)
-        client.publish(MQTT_TOPIC_TO_MAIN, RegisterJSONdump)
 
     else:
         print(">> on_mqtt_connectWIRE: mqtt broker error: {}".format(rc))
@@ -79,6 +75,10 @@ def Check_UI(wires, correct, DEBUG):
     DoneJSONdump = json.dumps(DoneArray)
     FaultArray = ["Wires1", "F"]
     FaultJSONdump = json.dumps(FaultArray)
+    RegisterArray = ["Wires1", "R"]
+    RegisterJSONdump = json.dumps(RegisterArray)
+
+    Wireclient.publish(MQTT_TOPIC_TO_MAIN, RegisterJSONdump)
 
 #----------------------------------END_PUBSUB/BEGIN_GPIO-------------------------------
 

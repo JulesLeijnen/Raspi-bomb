@@ -18,7 +18,8 @@ def Blinker_Process(DEBUG):
     DEBUGStatus = DEBUG
     bomb_done_blinker = False
     start_blinking_peramiters = []
-    
+    wait_var = 0
+
     #Loggingstuff
 
     Blinkerclient = Blinker_PubSubStuff()
@@ -27,8 +28,10 @@ def Blinker_Process(DEBUG):
 
     while not len(start_blinking_peramiters) == 5:
         print(start_blinking_peramiters)
-        sleep(0.5)
-        print("Waiting for the blinking info")
+        sleep(0.1)
+        wait_var += 1
+        if wait_var % 25 == 0:
+            print("Waiting for the blinking info")
     
     print(time())
     print(float(start_blinking_peramiters[4] + (start_blinking_peramiters[2] - start_blinking_peramiters[3])))
