@@ -47,6 +47,8 @@ def Blinker_Process(DEBUG):
     sleep(2)
     exit(0)
 
+#----------------------------------------LOGGING------------------------------------------
+
 #------------------------------------MQTT Functions---------------------------------------
 def Blinker_PubSubStuff():
     Blinkerclient = None
@@ -84,7 +86,7 @@ def on_mqtt_connectBLINKER(client, userdata, flags, rc):
 def on_mqtt_messageBLINKER(client, userdata, message):
     new_message = json.loads(str(message.payload.decode("utf-8")))
     print("BLINKER: message received in timer_process.py: {}".format(new_message,))
-    BlinkerMessageResolver(new_message) #How do I give the function the display that is made in the main function of this process?
+    BlinkerMessageResolver(new_message)
     return
 
 def BlinkerMessageResolver(message):

@@ -33,11 +33,12 @@ def clock_process(time_total, blinkfrom, DEBUG):
     
     starttime = (time() + 2.5)         #Sets time from where all will start.
 
-    dictionary2 = ["TimerModule", "T"]                                      #Preset message to tell the main process that time's up.
-    messageT = json.dumps(dictionary2)                                      # "
     dictionary3 = ["TimerModule", "B", time_total, blinkfrom, starttime]    #Preset message to tell the blinking process to start blinking. (Format: ["SendFrom", "Blinking command", "Total time", "Blink from", startfrom]).
     messageB = json.dumps(dictionary3)
     Timerclient.publish(MQTT_TOPIC_FROM_MAIN, messageB)    #Tells the blinking process all the peramiters that are needed for it.
+    dictionary2 = ["TimerModule", "T"]                                      #Preset message to tell the main process that time's up.
+    messageT = json.dumps(dictionary2)                                      # "
+
     
     until(starttime)                                #Waits for all the other time based programs to get ready to start and starts after a predeterment time 2.5 seconds.
 
