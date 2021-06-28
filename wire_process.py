@@ -115,23 +115,23 @@ def Check_UI(wires, correct, DEBUG):
     gpio.setwarnings(DEBUG)
     gpio.setmode(gpio.BOARD)
 
-    gpio.setup(DRAAD1, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-    gpio.setup(DRAAD2, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-    gpio.setup(DRAAD3, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+    gpio.setup(DRAAD1, gpio.IN, pull_up_down=gpio.POUD_UP)
+    gpio.setup(DRAAD2, gpio.IN, pull_up_down=gpio.POUD_UP)
+    gpio.setup(DRAAD3, gpio.IN, pull_up_down=gpio.POUD_UP)
 
-    gpio.add_event_detect(DRAAD1, gpio.FALLING, callback=CallbackD1)
-    gpio.add_event_detect(DRAAD2, gpio.FALLING, callback=CallbackD2)
-    gpio.add_event_detect(DRAAD3, gpio.FALLING, callback=CallbackD3)
+    gpio.add_event_detect(DRAAD1, gpio.RISING, callback=CallbackD1)
+    gpio.add_event_detect(DRAAD2, gpio.RISING, callback=CallbackD2)
+    gpio.add_event_detect(DRAAD3, gpio.RISING, callback=CallbackD3)
 
     if len(wires) > 3:
-        gpio.setup(DRAAD4, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-        gpio.add_event_detect(DRAAD4, gpio.FALLING, callback=CallbackD4)
+        gpio.setup(DRAAD4, gpio.IN, pull_up_down=gpio.POUD_UP)
+        gpio.add_event_detect(DRAAD4, gpio.RISING, callback=CallbackD4)
     elif len(wires) > 4:
-        gpio.setup(DRAAD5, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-        gpio.add_event_detect(DRAAD5, gpio.FALLING, callback=CallbackD5)
+        gpio.setup(DRAAD5, gpio.IN, pull_up_down=gpio.POUD_UP)
+        gpio.add_event_detect(DRAAD5, gpio.RISING, callback=CallbackD5)
     elif len(wires) > 5:
-        gpio.setup(DRAAD6, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-        gpio.add_event_detect(DRAAD6, gpio.FALLING, callback=CallbackD6)
+        gpio.setup(DRAAD6, gpio.IN, pull_up_down=gpio.POUD_UP)
+        gpio.add_event_detect(DRAAD6, gpio.RISING, callback=CallbackD6)
 
     while NOTCLEARED:
         if Wire_Cut_1 == 1 and  correct != 1 and wire_behandeld_1 == 0:
